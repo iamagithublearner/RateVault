@@ -12,6 +12,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import com.example.ratevault.getCurrentDate
@@ -21,6 +22,7 @@ import com.example.ratevault.ui.review.NewReviewScreen
 import com.example.ratevault.ui.review.ReviewDetailScreen
 import com.example.ratevault.ui.review.ReviewsScreen
 
+@Preview
 @Composable
 fun RateVaultScreen() {
     var currentDestination by remember { mutableStateOf<NavDestination>(NavDestination.Feed) }
@@ -35,10 +37,10 @@ fun RateVaultScreen() {
     ) {
         MainScaffold(
             currentDestination = currentDestination,
-            onNavigate = {
+            onNavigate = {destination->
                 selectedReview = null
                 prefillReview = null
-                currentDestination = it
+                currentDestination = destination
             },
             onFabClick = {
                 prefillReview = null

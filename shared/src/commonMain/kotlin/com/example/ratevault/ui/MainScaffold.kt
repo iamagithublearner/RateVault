@@ -48,7 +48,7 @@ fun MainScaffold(
         floatingActionButton = {
             LargeFloatingActionButton(
                 onClick = onFabClick,
-                containerColor = Color(0xFFF19CAF), // Custom pink from image
+                containerColor = Color(0xFFF19CAF), // Custom pink
                 contentColor = Color(0xFF4A1D2D), // Dark text/icon color
                 modifier = Modifier
                     .offset(y = 56.dp) // Offset to overlap with BottomBar

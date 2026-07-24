@@ -31,12 +31,13 @@ fun NewReviewScreen(
     onDismiss: () -> Unit,
     onSave: (String, ReviewCategory, Int, String, String, List<String>) -> Unit,
     initialName: String = "",
-    initialCategory: ReviewCategory? = null
+    initialCategory: ReviewCategory? = null,
+    initialLocation: String = ""
 ) {
     var reviewItemName by remember { mutableStateOf(initialName) }
     var selectedCategory by remember { mutableStateOf(initialCategory) }
     var rating by remember { mutableStateOf(0) }
-    var location by remember { mutableStateOf("") }
+    var location by remember { mutableStateOf(initialLocation) }
     var tagsInput by remember { mutableStateOf("") }
     var notes by remember { mutableStateOf("") }
 
@@ -87,10 +88,12 @@ fun NewReviewScreen(
                     .clip(RoundedCornerShape(12.dp))
                     .border(1.dp, Color.LightGray, RoundedCornerShape(12.dp)),
                 colors = TextFieldDefaults.colors(
-                    focusedContainerColor = Color(0xFFFAFAFA),
-                    unfocusedContainerColor = Color(0xFFFAFAFA),
+                    focusedContainerColor = if (initialName.isNotBlank()) Color(0xFFEEEEEE) else Color(0xFFFAFAFA),
+                    unfocusedContainerColor = if (initialName.isNotBlank()) Color(0xFFEEEEEE) else Color(0xFFFAFAFA),
                     focusedIndicatorColor = Color.Transparent,
-                    unfocusedIndicatorColor = Color.Transparent
+                    unfocusedIndicatorColor = Color.Transparent,
+                    focusedTextColor = if (initialName.isNotBlank()) Color.Gray else Color.Black,
+                    unfocusedTextColor = if (initialName.isNotBlank()) Color.Gray else Color.Black
                 )
             )
 
@@ -108,6 +111,7 @@ fun NewReviewScreen(
                     CategoryItem(
                         category = category,
                         isSelected = selectedCategory == category,
+                        enabled = initialCategory == null || initialCategory == category,
                         onClick = { 
                             if (initialCategory == null) {
                                 selectedCategory = category 
@@ -182,7 +186,8 @@ fun NewReviewScreen(
             Text("Location", color = Color.Gray, fontSize = 14.sp)
             TextField(
                 value = location,
-                onValueChange = { location = it },
+                onValueChange = { if (initialLocation.isBlank()) location = it },
+                readOnly = initialLocation.isNotBlank(),
                 placeholder = { Text("e.g., Austin, TX", color = Color.Gray) },
                 modifier = Modifier
                     .fillMaxWidth()
@@ -190,10 +195,12 @@ fun NewReviewScreen(
                     .clip(RoundedCornerShape(12.dp))
                     .border(1.dp, Color.LightGray, RoundedCornerShape(12.dp)),
                 colors = TextFieldDefaults.colors(
-                    focusedContainerColor = Color(0xFFFAFAFA),
-                    unfocusedContainerColor = Color(0xFFFAFAFA),
+                    focusedContainerColor = if (initialLocation.isNotBlank()) Color(0xFFEEEEEE) else Color(0xFFFAFAFA),
+                    unfocusedContainerColor = if (initialLocation.isNotBlank()) Color(0xFFEEEEEE) else Color(0xFFFAFAFA),
                     focusedIndicatorColor = Color.Transparent,
-                    unfocusedIndicatorColor = Color.Transparent
+                    unfocusedIndicatorColor = Color.Transparent,
+                    focusedTextColor = if (initialLocation.isNotBlank()) Color.Gray else Color.Black,
+                    unfocusedTextColor = if (initialLocation.isNotBlank()) Color.Gray else Color.Black
                 )
             )
 
@@ -272,6 +279,7 @@ fun NewReviewScreen(
 fun CategoryItem(
     category: ReviewCategory,
     isSelected: Boolean,
+    enabled: Boolean = true,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     maroonColor: Color
@@ -279,10 +287,14 @@ fun CategoryItem(
     Card(
         modifier = modifier
             .height(100.dp)
-            .clickable { onClick() },
+            .clickable(enabled = enabled) { onClick() },
         shape = RoundedCornerShape(12.dp),
         colors = CardDefaults.cardColors(
-            containerColor = if (isSelected) maroonColor else Color.White
+            containerColor = when {
+                isSelected && enabled -> maroonColor
+                isSelected && !enabled -> maroonColor.copy(alpha = 0.5f)
+                else -> Color.White
+            }
         ),
         border = if (isSelected) null else BorderStroke(1.dp, Color.LightGray)
     ) {
@@ -295,20 +307,30 @@ fun CategoryItem(
                 modifier = Modifier
                     .size(40.dp)
                     .clip(RoundedCornerShape(20.dp))
-                    .background(if (isSelected) Color.White.copy(alpha = 0.2f) else Color(category.color)),
+                    .background(
+                        if (isSelected) {
+                            Color.White.copy(alpha = if (enabled) 0.2f else 0.1f)
+                        } else {
+                            Color(category.color).copy(alpha = if (enabled) 1.0f else 0.5f)
+                        }
+                    ),
                 contentAlignment = Alignment.Center
             ) {
                 Icon(
                     imageVector = category.icon,
                     contentDescription = null,
-                    tint = if (isSelected) Color.White else maroonColor,
+                    tint = if (isSelected) Color.White else maroonColor.copy(alpha = if (enabled) 1.0f else 0.5f),
                     modifier = Modifier.size(24.dp)
                 )
             }
             Spacer(modifier = Modifier.height(8.dp))
             Text(
                 text = category.label,
-                color = if (isSelected) Color.White else Color.Black,
+                color = if (isSelected) {
+                    Color.White.copy(alpha = if (enabled) 1.0f else 0.6f)
+                } else {
+                    Color.Black.copy(alpha = if (enabled) 1.0f else 0.4f)
+                },
                 fontSize = 12.sp,
                 fontWeight = FontWeight.Medium
             )

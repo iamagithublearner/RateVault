@@ -94,6 +94,7 @@ fun App() {
                     },
                     initialName = prefillReview?.name ?: "",
                     initialCategory = prefillReview?.category,
+                    initialLocation = prefillReview?.location ?: "",
                     onSave = { name, category, rating, notes, location, tags ->
                         val matchingReviews = reviews.filter { it.name == name && it.category == category }
                         
@@ -118,7 +119,13 @@ fun App() {
                         reviews.removeAll(matchingReviews)
                         reviews.add(0, newReview)
                         
+                        // Update the selected review so the detail screen reflects the new data immediately
+                        if (selectedReview != null && selectedReview?.name == name && selectedReview?.category == category) {
+                            selectedReview = newReview
+                        }
+                        
                         showNewReview = false
+                        prefillReview = null
                     }
                 )
             }

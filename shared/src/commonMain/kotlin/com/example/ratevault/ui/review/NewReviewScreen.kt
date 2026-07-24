@@ -29,10 +29,12 @@ import androidx.compose.ui.tooling.preview.Preview
 @Composable
 fun NewReviewScreen(
     onDismiss: () -> Unit,
-    onSave: (String, ReviewCategory, Int, String, String, List<String>) -> Unit
+    onSave: (String, ReviewCategory, Int, String, String, List<String>) -> Unit,
+    initialName: String = "",
+    initialCategory: ReviewCategory? = null
 ) {
-    var reviewItemName by remember { mutableStateOf("") }
-    var selectedCategory by remember { mutableStateOf<ReviewCategory?>(null) }
+    var reviewItemName by remember { mutableStateOf(initialName) }
+    var selectedCategory by remember { mutableStateOf(initialCategory) }
     var rating by remember { mutableStateOf(0) }
     var location by remember { mutableStateOf("") }
     var tagsInput by remember { mutableStateOf("") }
@@ -76,7 +78,8 @@ fun NewReviewScreen(
             Text("What are you reviewing?", color = Color.Gray, fontSize = 14.sp)
             TextField(
                 value = reviewItemName,
-                onValueChange = { reviewItemName = it },
+                onValueChange = { if (initialName.isBlank()) reviewItemName = it },
+                readOnly = initialName.isNotBlank(),
                 placeholder = { Text("e.g., The French Laundry, Inc", color = Color.Gray) },
                 modifier = Modifier
                     .fillMaxWidth()
@@ -105,7 +108,11 @@ fun NewReviewScreen(
                     CategoryItem(
                         category = category,
                         isSelected = selectedCategory == category,
-                        onClick = { selectedCategory = category },
+                        onClick = { 
+                            if (initialCategory == null) {
+                                selectedCategory = category 
+                            }
+                        },
                         modifier = Modifier.weight(1f),
                         maroonColor = maroonColor
                     )

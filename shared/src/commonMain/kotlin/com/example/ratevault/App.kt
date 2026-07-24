@@ -24,6 +24,7 @@ fun App() {
     MaterialTheme {
         var currentDestination by remember { mutableStateOf<NavDestination>(NavDestination.Feed) }
         var showNewReview by remember { mutableStateOf(false) }
+        var prefillReview by remember { mutableStateOf<Review?>(null) }
         var selectedReview by remember { mutableStateOf<Review?>(null) }
         val reviews = remember { mutableStateListOf<Review>() }
 
@@ -35,9 +36,13 @@ fun App() {
                 currentDestination = currentDestination,
                 onNavigate = { 
                     selectedReview = null
+                    prefillReview = null
                     currentDestination = it 
                 },
-                onFabClick = { showNewReview = true }
+                onFabClick = { 
+                    prefillReview = null
+                    showNewReview = true 
+                }
             ) { innerPadding ->
                 // Content based on destination
                 Surface(
@@ -50,7 +55,7 @@ fun App() {
                             review = selectedReview!!,
                             onBack = { selectedReview = null },
                             onReviewAgain = { 
-                                // Mock functionality for "Review Again"
+                                prefillReview = selectedReview
                                 showNewReview = true
                             }
                         )
@@ -76,11 +81,19 @@ fun App() {
 
         if (showNewReview) {
             Dialog(
-                onDismissRequest = { showNewReview = false },
+                onDismissRequest = { 
+                    showNewReview = false
+                    prefillReview = null
+                },
                 properties = DialogProperties(usePlatformDefaultWidth = false)
             ) {
                 NewReviewScreen(
-                    onDismiss = { showNewReview = false },
+                    onDismiss = { 
+                        showNewReview = false
+                        prefillReview = null
+                    },
+                    initialName = prefillReview?.name ?: "",
+                    initialCategory = prefillReview?.category,
                     onSave = { name, category, rating, notes, location, tags ->
                         val history = reviews
                             .filter { it.name == name && it.category == category }

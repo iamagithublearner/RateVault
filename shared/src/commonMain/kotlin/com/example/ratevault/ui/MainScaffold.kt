@@ -5,18 +5,38 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material3.*
+import androidx.compose.material3.FabPosition
+import androidx.compose.material3.Icon
+import androidx.compose.material3.LargeFloatingActionButton
+import androidx.compose.material3.NavigationBar
+import androidx.compose.material3.NavigationBarItem
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.tooling.preview.PreviewParameter
+import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import androidx.compose.ui.unit.dp
 
+class NavDestinationProvider : PreviewParameterProvider<NavDestination> {
+    override val values: Sequence<NavDestination> = sequenceOf(
+        NavDestination.Feed,
+        NavDestination.Reviews
+    )
+}
+
+
+@Preview(showBackground = true)
 @Composable
 fun MainScaffold(
+    @PreviewParameter(NavDestinationProvider::class)
     currentDestination: NavDestination,
-    onNavigate: (NavDestination) -> Unit,
-    onFabClick: () -> Unit,
-    content: @Composable (innerPadding: androidx.compose.foundation.layout.PaddingValues) -> Unit
+
+    onNavigate: (NavDestination) -> Unit = {},
+    onFabClick: () -> Unit = {},
+    content: @Composable (innerPadding: androidx.compose.foundation.layout.PaddingValues) -> Unit = {}
 ) {
     Scaffold(
         bottomBar = {

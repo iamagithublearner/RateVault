@@ -109,19 +109,28 @@ fun ReviewItem(review: Review, onClick: () -> Unit) {
             }
 
             // Rating
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Text(
-                    text = formattedRating.toString(),
-                    fontWeight = FontWeight.Bold,
-                    color = maroonColor,
-                    fontSize = 16.sp
-                )
-                Icon(
-                    Icons.Default.Star,
-                    contentDescription = null,
-                    tint = maroonColor,
-                    modifier = Modifier.size(16.dp)
-                )
+            Column(horizontalAlignment = Alignment.End) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Text(
+                        text = review.rating.toString(),
+                        fontWeight = FontWeight.Bold,
+                        color = maroonColor,
+                        fontSize = 18.sp
+                    )
+                    Icon(
+                        Icons.Default.Star,
+                        contentDescription = null,
+                        tint = maroonColor,
+                        modifier = Modifier.size(18.dp)
+                    )
+                }
+                if (review.previousReviews.isNotEmpty()) {
+                    Text(
+                        text = "Avg: $formattedRating",
+                        fontSize = 12.sp,
+                        color = Color.Gray
+                    )
+                }
             }
         }
     }

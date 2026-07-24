@@ -33,7 +33,6 @@ fun ReviewDetailScreen(
 
     val allRatings = listOf(review.rating) + review.previousReviews.map { it.rating }
     val averageRating = allRatings.average()
-    val totalReviews = allRatings.size
 
     Scaffold(
         topBar = {
@@ -143,18 +142,27 @@ fun ReviewDetailScreen(
                                     Icon(
                                         imageVector = Icons.Default.Star,
                                         contentDescription = null,
-                                        tint = if (index < averageRating.toInt()) maroonColor else Color.LightGray,
+                                        tint = if (index < review.rating) maroonColor else Color.LightGray,
                                         modifier = Modifier.size(20.dp)
                                     )
                                 }
                             }
                             Spacer(Modifier.width(8.dp))
-                            Text(
-                                text = "${(averageRating * 10).toInt() / 10.0} ($totalReviews)",
-                                fontWeight = FontWeight.Bold,
-                                color = maroonColor,
-                                fontSize = 16.sp
-                            )
+                            Column(horizontalAlignment = Alignment.End) {
+                                Text(
+                                    text = "Latest: ${review.rating}",
+                                    fontWeight = FontWeight.Bold,
+                                    color = maroonColor,
+                                    fontSize = 16.sp
+                                )
+                                if (review.previousReviews.isNotEmpty()) {
+                                    Text(
+                                        text = "Avg: ${(averageRating * 10).toInt() / 10.0}",
+                                        color = Color.Gray,
+                                        fontSize = 12.sp
+                                    )
+                                }
+                            }
                         }
                     }
 
@@ -243,19 +251,26 @@ fun ReviewDetailScreen(
 
                     // Previous Reviews
                     Text(
-                        "PREVIOUS REVIEWS",
+                        "REVIEW HISTORY",
                         fontSize = 12.sp,
                         fontWeight = FontWeight.Bold,
                         color = Color.Gray
                     )
                     Spacer(Modifier.height(16.dp))
                     
-                    if (review.previousReviews.isEmpty()) {
-                        Text("This is your first review of ${review.name}.", color = Color.Gray, fontSize = 14.sp)
-                    } else {
-                        review.previousReviews.forEach { entry ->
-                            TimelineItem(entry, maroonColor)
-                        }
+                    // Show current review first
+                    TimelineItem(
+                        entry = ReviewEntry(
+                            date = if (review.date.isEmpty()) "Today" else review.date,
+                            rating = review.rating,
+                            notes = review.notes
+                        ),
+                        maroonColor = maroonColor,
+                        isLatest = true
+                    )
+                    
+                    review.previousReviews.forEach { entry ->
+                        TimelineItem(entry, maroonColor)
                     }
                     
                     Spacer(Modifier.height(40.dp))
@@ -299,14 +314,14 @@ fun TagItem(tag: String) {
 }
 
 @Composable
-fun TimelineItem(entry: ReviewEntry, maroonColor: Color) {
+fun TimelineItem(entry: ReviewEntry, maroonColor: Color, isLatest: Boolean = false) {
     Row(modifier = Modifier.padding(bottom = 16.dp)) {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
             Box(
                 modifier = Modifier
-                    .size(8.dp)
+                    .size(if (isLatest) 12.dp else 8.dp)
                     .clip(CircleShape)
-                    .background(maroonColor)
+                    .background(if (isLatest) maroonColor else maroonColor.copy(alpha = 0.5f))
             )
             Box(
                 modifier = Modifier
@@ -317,7 +332,24 @@ fun TimelineItem(entry: ReviewEntry, maroonColor: Color) {
         }
         Spacer(Modifier.width(16.dp))
         Column {
-            Text(entry.date, fontWeight = FontWeight.Bold, fontSize = 14.sp)
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text(entry.date, fontWeight = FontWeight.Bold, fontSize = 14.sp)
+                if (isLatest) {
+                    Spacer(Modifier.width(8.dp))
+                    Surface(
+                        color = maroonColor,
+                        shape = RoundedCornerShape(4.dp)
+                    ) {
+                        Text(
+                            "LATEST",
+                            color = Color.White,
+                            fontSize = 10.sp,
+                            fontWeight = FontWeight.Bold,
+                            modifier = Modifier.padding(horizontal = 4.dp, vertical = 2.dp)
+                        )
+                    }
+                }
+            }
             Row(modifier = Modifier.padding(vertical = 4.dp)) {
                 repeat(5) { index ->
                     Icon(
@@ -329,7 +361,7 @@ fun TimelineItem(entry: ReviewEntry, maroonColor: Color) {
                 }
             }
             Text(
-                text = "\"${entry.notes}\"",
+                text = "\"${entry.notes.ifEmpty { "No notes." }}\"",
                 fontSize = 14.sp,
                 fontStyle = FontStyle.Italic,
                 color = Color.DarkGray

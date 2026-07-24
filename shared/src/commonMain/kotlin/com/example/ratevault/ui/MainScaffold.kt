@@ -28,7 +28,7 @@ class NavDestinationProvider : PreviewParameterProvider<NavDestination> {
 }
 
 
-@Preview(showBackground = true)
+@Preview
 @Composable
 fun MainScaffold(
     @PreviewParameter(NavDestinationProvider::class)

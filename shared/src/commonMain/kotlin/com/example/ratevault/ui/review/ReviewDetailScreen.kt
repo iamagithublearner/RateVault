@@ -31,6 +31,10 @@ fun ReviewDetailScreen(
 ) {
     val maroonColor = Color(0xFF703E4B)
 
+    val allRatings = listOf(review.rating) + review.previousReviews.map { it.rating }
+    val averageRating = allRatings.average()
+    val totalReviews = allRatings.size
+
     Scaffold(
         topBar = {
             TopAppBar(
@@ -127,17 +131,30 @@ fun ReviewDetailScreen(
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             Icon(Icons.Default.CalendarToday, contentDescription = null, tint = Color.Gray, modifier = Modifier.size(14.dp))
                             Spacer(Modifier.width(4.dp))
-                            Text(review.date.ifEmpty { "Recently" }, color = Color.Gray, fontSize = 14.sp)
+                            Text(
+                                text = "${review.date.ifEmpty { "Recently" }} ${if (review.previousReviews.isNotEmpty()) "(Latest)" else ""}",
+                                color = Color.Gray,
+                                fontSize = 14.sp
+                            )
                         }
-                        Row {
-                            repeat(5) { index ->
-                                Icon(
-                                    imageVector = Icons.Default.Star,
-                                    contentDescription = null,
-                                    tint = if (index < review.rating) maroonColor else Color.LightGray,
-                                    modifier = Modifier.size(20.dp)
-                                )
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Row {
+                                repeat(5) { index ->
+                                    Icon(
+                                        imageVector = Icons.Default.Star,
+                                        contentDescription = null,
+                                        tint = if (index < averageRating.toInt()) maroonColor else Color.LightGray,
+                                        modifier = Modifier.size(20.dp)
+                                    )
+                                }
                             }
+                            Spacer(Modifier.width(8.dp))
+                            Text(
+                                text = "${(averageRating * 10).toInt() / 10.0} ($totalReviews)",
+                                fontWeight = FontWeight.Bold,
+                                color = maroonColor,
+                                fontSize = 16.sp
+                            )
                         }
                     }
 

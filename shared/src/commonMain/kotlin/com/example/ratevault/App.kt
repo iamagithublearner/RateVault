@@ -95,6 +95,7 @@ fun App() {
                     initialName = prefillReview?.name ?: "",
                     initialCategory = prefillReview?.category,
                     initialLocation = prefillReview?.location ?: "",
+                    initialTags = prefillReview?.tags ?: emptyList(),
                     onSave = { name, category, rating, notes, location, tags ->
                         val matchingReviews = reviews.filter { it.name == name && it.category == category }
                         

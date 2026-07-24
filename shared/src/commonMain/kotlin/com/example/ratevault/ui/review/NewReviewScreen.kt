@@ -32,13 +32,14 @@ fun NewReviewScreen(
     onSave: (String, ReviewCategory, Int, String, String, List<String>) -> Unit,
     initialName: String = "",
     initialCategory: ReviewCategory? = null,
-    initialLocation: String = ""
+    initialLocation: String = "",
+    initialTags: List<String> = emptyList()
 ) {
     var reviewItemName by remember { mutableStateOf(initialName) }
     var selectedCategory by remember { mutableStateOf(initialCategory) }
     var rating by remember { mutableStateOf(0) }
     var location by remember { mutableStateOf(initialLocation) }
-    var tagsInput by remember { mutableStateOf("") }
+    var tagsInput by remember { mutableStateOf(initialTags.joinToString(", ")) }
     var notes by remember { mutableStateOf("") }
 
     val isSaveEnabled = reviewItemName.isNotBlank() && selectedCategory != null && rating > 0
@@ -210,7 +211,8 @@ fun NewReviewScreen(
             Text("Tags (comma separated)", color = Color.Gray, fontSize = 14.sp)
             TextField(
                 value = tagsInput,
-                onValueChange = { tagsInput = it },
+                onValueChange = { if (initialTags.isEmpty()) tagsInput = it },
+                readOnly = initialTags.isNotEmpty(),
                 placeholder = { Text("e.g., Savory, Spicy, Great View", color = Color.Gray) },
                 modifier = Modifier
                     .fillMaxWidth()
@@ -218,10 +220,12 @@ fun NewReviewScreen(
                     .clip(RoundedCornerShape(12.dp))
                     .border(1.dp, Color.LightGray, RoundedCornerShape(12.dp)),
                 colors = TextFieldDefaults.colors(
-                    focusedContainerColor = Color(0xFFFAFAFA),
-                    unfocusedContainerColor = Color(0xFFFAFAFA),
+                    focusedContainerColor = if (initialTags.isNotEmpty()) Color(0xFFEEEEEE) else Color(0xFFFAFAFA),
+                    unfocusedContainerColor = if (initialTags.isNotEmpty()) Color(0xFFEEEEEE) else Color(0xFFFAFAFA),
                     focusedIndicatorColor = Color.Transparent,
-                    unfocusedIndicatorColor = Color.Transparent
+                    unfocusedIndicatorColor = Color.Transparent,
+                    focusedTextColor = if (initialTags.isNotEmpty()) Color.Gray else Color.Black,
+                    unfocusedTextColor = if (initialTags.isNotEmpty()) Color.Gray else Color.Black
                 )
             )
 

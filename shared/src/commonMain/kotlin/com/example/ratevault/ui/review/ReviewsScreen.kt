@@ -57,6 +57,11 @@ fun ReviewsScreen(
 @Composable
 fun ReviewItem(review: Review, onClick: () -> Unit) {
     val maroonColor = Color(0xFF703E4B)
+    
+    val allRatings = listOf(review.rating) + review.previousReviews.map { it.rating }
+    val averageRating = allRatings.average()
+    val formattedRating = (averageRating * 10).toInt() / 10.0
+
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -106,7 +111,7 @@ fun ReviewItem(review: Review, onClick: () -> Unit) {
             // Rating
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text(
-                    text = review.rating.toString(),
+                    text = formattedRating.toString(),
                     fontWeight = FontWeight.Bold,
                     color = maroonColor,
                     fontSize = 16.sp

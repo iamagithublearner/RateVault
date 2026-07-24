@@ -15,14 +15,67 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.tooling.preview.PreviewParameter
+import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.ratevault.model.Review
+import com.example.ratevault.model.ReviewCategory
+import kotlin.collections.emptyList
 
+fun createReview(index: Int) = Review(
+    name = "Food $index",
+    category = ReviewCategory.Food,
+    rating = (index % 5) + 1,
+    notes = "Notes for review $index",
+    imagePath = null,
+    location = "Location $index",
+    date = "${index + 1} May 1969",
+    tags = emptyList(),
+    previousReviews = emptyList()
+)
+
+class ReviewPreviewProvider : PreviewParameterProvider<List<Review>> {
+    override val values: Sequence<List<Review>> = sequenceOf(
+        listOf(
+            Review(
+                name = "Place 1",
+                category = ReviewCategory.Place,
+                rating = 4,
+                notes = "Notes",
+                imagePath = null,
+                location = "India",
+                date = "25 May 1969",
+                tags = emptyList(),
+                previousReviews = emptyList()
+            ),
+            Review(
+                name = "Food 2",
+                category = ReviewCategory.Food,
+                rating = 2,
+                notes = "Notes",
+                imagePath = null,
+                location = "India",
+                date = "25 May 1969",
+                tags = emptyList(),
+                previousReviews = emptyList()
+            )
+        ),
+        emptyList(),
+        (1..20).map(::createReview)
+
+
+    )
+
+}
+
+@Preview
 @Composable
 fun ReviewsScreen(
+    @PreviewParameter(ReviewPreviewProvider::class)
     reviews: List<Review>,
-    onReviewClick: (Review) -> Unit
+    onReviewClick: (Review) -> Unit = {}
 ) {
     Column(
         modifier = Modifier
@@ -57,7 +110,7 @@ fun ReviewsScreen(
 @Composable
 fun ReviewItem(review: Review, onClick: () -> Unit) {
     val maroonColor = Color(0xFF703E4B)
-    
+
     val allRatings = listOf(review.rating) + review.previousReviews.map { it.rating }
     val averageRating = allRatings.average()
     val formattedRating = (averageRating * 10).toInt() / 10.0

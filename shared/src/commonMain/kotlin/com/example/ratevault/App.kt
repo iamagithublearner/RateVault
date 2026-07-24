@@ -95,23 +95,29 @@ fun App() {
                     initialName = prefillReview?.name ?: "",
                     initialCategory = prefillReview?.category,
                     onSave = { name, category, rating, notes, location, tags ->
-                        val history = reviews
-                            .filter { it.name == name && it.category == category }
-                            .map { ReviewEntry(it.date, it.rating, it.notes) }
-                            .sortedByDescending { it.date } // Basic sort, could be improved with actual date parsing
+                        val matchingReviews = reviews.filter { it.name == name && it.category == category }
+                        
+                        val history = matchingReviews
+                            .flatMap { 
+                                listOf(ReviewEntry(it.date, it.rating, it.notes)) + it.previousReviews 
+                            }
+                            .sortedByDescending { it.date }
 
-                        reviews.add(
-                            Review(
-                                name = name,
-                                category = category,
-                                rating = rating,
-                                notes = notes,
-                                date = getCurrentDate(),
-                                location = location,
-                                tags = tags,
-                                previousReviews = history
-                            )
+                        val newReview = Review(
+                            name = name,
+                            category = category,
+                            rating = rating,
+                            notes = notes,
+                            date = getCurrentDate(),
+                            location = location,
+                            tags = tags,
+                            previousReviews = history
                         )
+
+                        // Remove old entries for this item and add the new one at the top
+                        reviews.removeAll(matchingReviews)
+                        reviews.add(0, newReview)
+                        
                         showNewReview = false
                     }
                 )

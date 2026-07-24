@@ -1,6 +1,7 @@
 package com.example.ratevault.ui.review
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -19,7 +20,10 @@ import androidx.compose.ui.unit.sp
 import com.example.ratevault.model.Review
 
 @Composable
-fun ReviewsScreen(reviews: List<Review>) {
+fun ReviewsScreen(
+    reviews: List<Review>,
+    onReviewClick: (Review) -> Unit
+) {
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -43,7 +47,7 @@ fun ReviewsScreen(reviews: List<Review>) {
                 modifier = Modifier.fillMaxSize()
             ) {
                 items(reviews) { review ->
-                    ReviewItem(review)
+                    ReviewItem(review, onClick = { onReviewClick(review) })
                 }
             }
         }
@@ -51,10 +55,12 @@ fun ReviewsScreen(reviews: List<Review>) {
 }
 
 @Composable
-fun ReviewItem(review: Review) {
+fun ReviewItem(review: Review, onClick: () -> Unit) {
     val maroonColor = Color(0xFF703E4B)
     Card(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable { onClick() },
         shape = RoundedCornerShape(12.dp),
         colors = CardDefaults.cardColors(containerColor = Color.White),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)

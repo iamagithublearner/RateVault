@@ -21,5 +21,15 @@ data class Review(
     val category: ReviewCategory = ReviewCategory.Place,
     val rating: Int = 0,
     val notes: String = "",
-    val imagePath: String? = null
+    val imagePath: String? = null,
+    val location: String = "",
+    val date: String = "",
+    val tags: List<String> = emptyList(),
+    val previousReviews: List<ReviewEntry> = emptyList()
+)
+
+data class ReviewEntry(
+    val date: String,
+    val rating: Int,
+    val notes: String
 )

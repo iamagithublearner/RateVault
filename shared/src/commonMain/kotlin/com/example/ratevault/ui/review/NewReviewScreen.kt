@@ -5,7 +5,9 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.PhotoCamera
@@ -27,12 +29,16 @@ import androidx.compose.ui.tooling.preview.Preview
 @Composable
 fun NewReviewScreen(
     onDismiss: () -> Unit,
-    onSave: (String, ReviewCategory, Int, String) -> Unit
+    onSave: (String, ReviewCategory, Int, String, String, List<String>) -> Unit
 ) {
-    var name by remember { mutableStateOf("") }
-    var selectedCategory by remember { mutableStateOf(ReviewCategory.Place) }
-    var rating by remember { mutableStateOf(4) }
+    var reviewItemName by remember { mutableStateOf("") }
+    var selectedCategory by remember { mutableStateOf<ReviewCategory?>(null) }
+    var rating by remember { mutableStateOf(0) }
+    var location by remember { mutableStateOf("") }
+    var tagsInput by remember { mutableStateOf("") }
     var notes by remember { mutableStateOf("") }
+
+    val isSaveEnabled = reviewItemName.isNotBlank() && selectedCategory != null && rating > 0
 
     val maroonColor = Color(0xFF703E4B)
 
@@ -43,6 +49,7 @@ fun NewReviewScreen(
         Column(
             modifier = Modifier
                 .fillMaxSize()
+                .verticalScroll(rememberScrollState())
                 .padding(16.dp)
         ) {
             // Header
@@ -68,8 +75,8 @@ fun NewReviewScreen(
             // Name Input
             Text("What are you reviewing?", color = Color.Gray, fontSize = 14.sp)
             TextField(
-                value = name,
-                onValueChange = { name = it },
+                value = reviewItemName,
+                onValueChange = { reviewItemName = it },
                 placeholder = { Text("e.g., The French Laundry, Inc", color = Color.Gray) },
                 modifier = Modifier
                     .fillMaxWidth()
@@ -137,8 +144,8 @@ fun NewReviewScreen(
                         }
                     }
                     Text(
-                        text = "$rating.0 - ${getRatingLabel(rating)}",
-                        color = maroonColor,
+                        text = if (rating > 0) "$rating.0 - ${getRatingLabel(rating)}" else "Select Rating",
+                        color = if (rating > 0) maroonColor else Color.Gray,
                         fontWeight = FontWeight.Bold
                     )
                 }
@@ -164,6 +171,48 @@ fun NewReviewScreen(
 
             Spacer(modifier = Modifier.height(16.dp))
 
+            // Location Input
+            Text("Location", color = Color.Gray, fontSize = 14.sp)
+            TextField(
+                value = location,
+                onValueChange = { location = it },
+                placeholder = { Text("e.g., Austin, TX", color = Color.Gray) },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 8.dp)
+                    .clip(RoundedCornerShape(12.dp))
+                    .border(1.dp, Color.LightGray, RoundedCornerShape(12.dp)),
+                colors = TextFieldDefaults.colors(
+                    focusedContainerColor = Color(0xFFFAFAFA),
+                    unfocusedContainerColor = Color(0xFFFAFAFA),
+                    focusedIndicatorColor = Color.Transparent,
+                    unfocusedIndicatorColor = Color.Transparent
+                )
+            )
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            // Tags Input
+            Text("Tags (comma separated)", color = Color.Gray, fontSize = 14.sp)
+            TextField(
+                value = tagsInput,
+                onValueChange = { tagsInput = it },
+                placeholder = { Text("e.g., Savory, Spicy, Great View", color = Color.Gray) },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 8.dp)
+                    .clip(RoundedCornerShape(12.dp))
+                    .border(1.dp, Color.LightGray, RoundedCornerShape(12.dp)),
+                colors = TextFieldDefaults.colors(
+                    focusedContainerColor = Color(0xFFFAFAFA),
+                    unfocusedContainerColor = Color(0xFFFAFAFA),
+                    focusedIndicatorColor = Color.Transparent,
+                    unfocusedIndicatorColor = Color.Transparent
+                )
+            )
+
+            Spacer(modifier = Modifier.height(16.dp))
+
             // Notes Input
             Text("Notes & Thoughts", color = Color.Gray, fontSize = 14.sp)
             TextField(
@@ -184,16 +233,23 @@ fun NewReviewScreen(
                 )
             )
 
-            Spacer(modifier = Modifier.weight(1f))
+            Spacer(modifier = Modifier.height(24.dp))
 
             // Save Button
             Button(
-                onClick = { onSave(name, selectedCategory, rating, notes) },
+                onClick = { 
+                    val tags = tagsInput.split(",").map { it.trim() }.filter { it.isNotEmpty() }
+                    onSave(reviewItemName, selectedCategory!!, rating, notes, location, tags) 
+                },
+                enabled = isSaveEnabled,
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(56.dp),
                 shape = RoundedCornerShape(28.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = maroonColor)
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = maroonColor,
+                    disabledContainerColor = maroonColor.copy(alpha = 0.5f)
+                )
             ) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Icon(Icons.Default.Save, contentDescription = null)
@@ -265,5 +321,5 @@ private fun getRatingLabel(rating: Int): String = when (rating) {
 @Preview
 @Composable
 fun NewReviewScreenPreview() {
-    NewReviewScreen(onDismiss = {}, onSave = { _, _, _, _ -> })
+    NewReviewScreen(onDismiss = {}, onSave = { _, _, _, _, _, _ -> })
 }

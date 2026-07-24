@@ -70,11 +70,16 @@ fun RateVaultScreen() {
                             )
                         }
 
-                        else -> {
-                            Text(
-                                text = "Current Screen: ${currentDestination.label}",
-                                modifier = Modifier.fillMaxSize()
-                            )
+                        NavDestination.Feed -> {
+
+                        }
+
+                        NavDestination.Profile -> {
+
+                        }
+
+                        NavDestination.Settings -> {
+
                         }
                     }
                 }

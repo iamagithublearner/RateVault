@@ -21,6 +21,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.ratevault.model.Review
 import com.example.ratevault.model.ReviewEntry
+import com.example.ratevault.ui.components.RateVaultTopAppBar
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -36,18 +37,15 @@ fun ReviewDetailScreen(
 
     Scaffold(
         topBar = {
-            TopAppBar(
-                title = {
-                    Text(
-                        "Review Detail",
-                        fontSize = 20.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = maroonColor
-                    )
-                },
+            RateVaultTopAppBar(
+                title = "Detail",
                 navigationIcon = {
                     IconButton(onClick = onBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back", tint = maroonColor)
+                        Icon(
+                            Icons.AutoMirrored.Filled.ArrowBack,
+                            contentDescription = "Back",
+                            tint = maroonColor
+                        )
                     }
                 },
                 actions = {
@@ -57,12 +55,15 @@ fun ReviewDetailScreen(
                         contentPadding = PaddingValues(horizontal = 12.dp, vertical = 4.dp),
                         modifier = Modifier.padding(end = 8.dp)
                     ) {
-                        Icon(Icons.Default.History, contentDescription = null, modifier = Modifier.size(16.dp))
+                        Icon(
+                            Icons.Default.History,
+                            contentDescription = null,
+                            modifier = Modifier.size(16.dp)
+                        )
                         Spacer(Modifier.width(4.dp))
-                        Text("Review Again", fontSize = 12.sp)
+                        Text("Again", fontSize = 12.sp)
                     }
-                },
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.White)
+                }
             )
         }
     ) { innerPadding ->

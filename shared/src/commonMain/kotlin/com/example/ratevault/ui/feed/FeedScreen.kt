@@ -47,6 +47,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.ratevault.model.Review
 import com.example.ratevault.model.ReviewCategory
+import com.example.ratevault.ui.components.RateVaultTopAppBar
 import com.example.ratevault.ui.review.ReviewPreviewProvider
 
 @Preview
@@ -63,7 +64,7 @@ fun FeedScreen(
             .fillMaxSize()
             .background(Color(0xFFFFF8F8))
     ) {
-        FeedTopBar()
+        RateVaultTopAppBar()
 
         LazyColumn(
             modifier = Modifier.fillMaxSize(),
@@ -114,28 +115,6 @@ fun FeedScreen(
     }
 }
 
-@Composable
-private fun FeedTopBar() {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(16.dp),
-        horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Text(
-            text = "ReviewVault",
-            style = MaterialTheme.typography.headlineMedium,
-            fontWeight = FontWeight.Bold,
-            color = Color(0xFF703E4B)
-        )
-        Icon(
-            imageVector = Icons.Default.Search,
-            contentDescription = "Search",
-            tint = Color.DarkGray
-        )
-    }
-}
 
 @Composable
 private fun CategoriesSection(

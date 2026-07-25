@@ -23,6 +23,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.ratevault.ui.components.RateVaultTopAppBar
 
 
 @Preview
@@ -36,7 +37,7 @@ fun SettingsScreen() {
             .fillMaxSize()
             .background(bgColor)
     ) {
-        SettingsTopBar(maroonColor)
+        RateVaultTopAppBar(title = "Settings")
 
         Column(
             modifier = Modifier
@@ -119,37 +120,6 @@ fun SettingsScreen() {
     }
 }
 
-@Composable
-private fun SettingsTopBar(maroonColor: Color) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(16.dp),
-        horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            Icon(
-                imageVector = Icons.Default.HistoryEdu,
-                contentDescription = null,
-                tint = maroonColor,
-                modifier = Modifier.size(28.dp)
-            )
-            Spacer(modifier = Modifier.width(8.dp))
-            Text(
-                text = "RateVault",
-                style = MaterialTheme.typography.headlineMedium,
-                fontWeight = FontWeight.Bold,
-                color = maroonColor
-            )
-        }
-        Icon(
-            imageVector = Icons.Default.Search,
-            contentDescription = "Search",
-            tint = Color.DarkGray
-        )
-    }
-}
 
 @Composable
 private fun ProfileCard() {

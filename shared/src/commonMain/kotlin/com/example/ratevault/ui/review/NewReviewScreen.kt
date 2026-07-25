@@ -25,6 +25,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.ratevault.model.ReviewCategory
 import androidx.compose.ui.tooling.preview.Preview
+import com.example.ratevault.ui.components.RateVaultTopAppBar
 
 @Composable
 fun NewReviewScreen(
@@ -57,22 +58,15 @@ fun NewReviewScreen(
                 .padding(16.dp)
         ) {
             // Header
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                IconButton(onClick = onDismiss) {
-                    Icon(Icons.Default.Close, contentDescription = "Close", tint = maroonColor)
-                }
-                Text(
-                    text = "New Review",
-                    fontSize = 24.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = maroonColor
-                )
-                Box(modifier = Modifier.size(48.dp)) // Spacer
-            }
+            RateVaultTopAppBar(
+                title = "New Review",
+                navigationIcon = {
+                    IconButton(onClick = onDismiss) {
+                        Icon(Icons.Default.Close, contentDescription = "Close", tint = maroonColor)
+                    }
+                },
+                actions = null
+            )
 
             Spacer(modifier = Modifier.height(24.dp))
 

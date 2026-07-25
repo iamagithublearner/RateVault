@@ -22,6 +22,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.ratevault.model.Review
 import com.example.ratevault.model.ReviewCategory
+import com.example.ratevault.ui.components.RateVaultTopAppBar
 import kotlin.collections.emptyList
 
 fun createReview(index: Int) = Review(
@@ -80,15 +81,9 @@ fun ReviewsScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(16.dp)
+            .background(Color(0xFFFFF8F8))
     ) {
-        Text(
-            text = "Your Reviews",
-            fontSize = 24.sp,
-            fontWeight = FontWeight.Bold,
-            color = Color(0xFF703E4B),
-            modifier = Modifier.padding(bottom = 16.dp)
-        )
+        RateVaultTopAppBar(title = "Your Reviews")
 
         if (reviews.isEmpty()) {
             Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {

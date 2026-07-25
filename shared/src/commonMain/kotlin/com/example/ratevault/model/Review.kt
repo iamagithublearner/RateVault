@@ -5,6 +5,9 @@ import androidx.compose.material.icons.filled.Celebration
 import androidx.compose.material.icons.filled.Place
 import androidx.compose.material.icons.filled.Restaurant
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.room3.Entity
+import androidx.room3.PrimaryKey
+import kotlinx.serialization.Serializable
 
 enum class ReviewCategory(
     val label: String,
@@ -16,7 +19,10 @@ enum class ReviewCategory(
     Moment("Moment", Icons.Default.Celebration, 0xFFE8F5E9)
 }
 
+@Entity
+@Serializable
 data class Review(
+    @PrimaryKey(autoGenerate = true) val id: Long = 0,
     val name: String = "",
     val category: ReviewCategory = ReviewCategory.Place,
     val rating: Int = 0,
@@ -28,6 +34,7 @@ data class Review(
     val previousReviews: List<ReviewEntry> = emptyList()
 )
 
+@Serializable
 data class ReviewEntry(
     val date: String,
     val rating: Int,

@@ -7,6 +7,8 @@ plugins {
     alias(libs.plugins.composeMultiplatform)
     alias(libs.plugins.composeCompiler)
     alias(libs.plugins.kotlinSerialization)
+    alias(libs.plugins.ksp)
+    alias(libs.plugins.androidx.room)
 }
 
 kotlin {
@@ -51,14 +53,20 @@ kotlin {
            instrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
        }
     }
+
+    room3 {
+        schemaDirectory("$projectDir/schemas")
+    }
     
     sourceSets {
         androidMain.dependencies {
             implementation(libs.compose.uiToolingPreview)
             implementation(libs.compose.uiTooling)
+            implementation(libs.androidx.sqlite.bundled)
         }
         commonMain.dependencies {
             implementation(libs.kotlinx.serialization.json)
+            implementation(libs.androidx.room.runtime)
             implementation(libs.navigation3.ui)
             implementation(libs.compose.runtime)
             implementation(libs.compose.foundation)
@@ -77,10 +85,32 @@ kotlin {
         jsMain.dependencies {
             implementation(libs.wrappers.browser)
         }
+        
+        androidMain.dependencies {
+            implementation(libs.compose.uiToolingPreview)
+            implementation(libs.compose.uiTooling)
+            implementation(libs.androidx.sqlite.bundled)
+        }
+
+        jvmMain.dependencies {
+            implementation(libs.androidx.sqlite.bundled)
+        }
+
+        val iosMain by creating {
+            dependsOn(commonMain.get())
+            dependencies {
+                implementation(libs.androidx.sqlite.bundled)
+            }
+        }
+        getByName("iosArm64Main").dependsOn(iosMain)
+        getByName("iosSimulatorArm64Main").dependsOn(iosMain)
     }
 }
 
 dependencies {
     androidRuntimeClasspath(libs.compose.uiTooling)
-
+    add("kspAndroid", libs.androidx.room.compiler)
+    add("kspIosArm64", libs.androidx.room.compiler)
+    add("kspIosSimulatorArm64", libs.androidx.room.compiler)
+    add("kspJvm", libs.androidx.room.compiler)
 }

@@ -1,0 +1,317 @@
+package com.example.ratevault.ui.settings
+
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.Label
+import androidx.compose.material.icons.automirrored.filled.Logout
+import androidx.compose.material.icons.filled.*
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+
+
+@Preview
+@Composable
+fun SettingsScreen() {
+    val maroonColor = Color(0xFF703E4B)
+    val bgColor = Color(0xFFFFF8F8)
+
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(bgColor)
+    ) {
+        SettingsTopBar(maroonColor)
+
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .verticalScroll(rememberScrollState())
+                .padding(16.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            ProfileCard()
+
+            Spacer(modifier = Modifier.height(24.dp))
+
+            SettingsSection(title = "PREFERENCES") {
+                var darkMode by remember { mutableStateOf(false) }
+                SettingsToggleItem(
+                    icon = Icons.Default.DarkMode,
+                    label = "Dark Mode",
+                    checked = darkMode,
+                    onCheckedChange = { darkMode = it }
+                )
+                SettingsActionItem(
+                    icon = Icons.Default.Palette,
+                    label = "Change Theme",
+                    trailing = {
+                        Box(
+                            modifier = Modifier
+                                .size(24.dp)
+                                .clip(CircleShape)
+                                .background(maroonColor)
+                        )
+                    },
+                    onClick = {}
+                )
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            SettingsSection(title = "CONTENT MANAGEMENT") {
+                SettingsActionItem(
+                    icon = Icons.Default.Category,
+                    label = "Manage Categories",
+                    onClick = {
+                        //TODO: implement adding and removing categories
+                    }
+                )
+                SettingsActionItem(
+                    icon = Icons.AutoMirrored.Filled.Label,
+                    label = "Manage Tags",
+                    onClick = {
+                        //TODO: implement adding and removing tags
+                    }
+                )
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            SettingsSection(title = "SUPPORT") {
+                SettingsActionItem(
+                    icon = Icons.Default.Info,
+                    label = "About",
+                    onClick = {
+                        //TODO: display version information , git commit hash , other debug info
+                    }
+                )
+            }
+
+            Spacer(modifier = Modifier.height(32.dp))
+
+            SignOutButton(maroonColor)
+
+            Spacer(modifier = Modifier.height(24.dp))
+
+            Text(
+                text = "Version 2.4.0 (Hazakura Edition)",
+                color = Color.Gray,
+                fontSize = 12.sp,
+                modifier = Modifier.padding(bottom = 16.dp)
+            )
+        }
+    }
+}
+
+@Composable
+private fun SettingsTopBar(maroonColor: Color) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(16.dp),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Icon(
+                imageVector = Icons.Default.HistoryEdu,
+                contentDescription = null,
+                tint = maroonColor,
+                modifier = Modifier.size(28.dp)
+            )
+            Spacer(modifier = Modifier.width(8.dp))
+            Text(
+                text = "RateVault",
+                style = MaterialTheme.typography.headlineMedium,
+                fontWeight = FontWeight.Bold,
+                color = maroonColor
+            )
+        }
+        Icon(
+            imageVector = Icons.Default.Search,
+            contentDescription = "Search",
+            tint = Color.DarkGray
+        )
+    }
+}
+
+@Composable
+private fun ProfileCard() {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(16.dp),
+        colors = CardDefaults.cardColors(containerColor = Color.White),
+        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
+    ) {
+        Row(
+            modifier = Modifier.padding(16.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            // Avatar Placeholder
+            Box(
+                modifier = Modifier
+                    .size(64.dp)
+                    .clip(CircleShape)
+                    .background(Color(0xFFF5E6E8)),
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Person2,
+                    contentDescription = null,
+                    modifier = Modifier.size(32.dp),
+                    tint = Color(0xFF703E4B)
+                )
+            }
+            Spacer(modifier = Modifier.width(16.dp))
+            Column {
+                Text(
+                    text = "Username",
+                    style = MaterialTheme.typography.titleLarge,
+                    fontWeight = FontWeight.Bold
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun SettingsSection(title: String, content: @Composable ColumnScope.() -> Unit) {
+    Column(modifier = Modifier.fillMaxWidth()) {
+        Text(
+            text = title,
+            style = MaterialTheme.typography.labelLarge,
+            color = Color(0xFF8D5868),
+            fontWeight = FontWeight.Bold,
+            modifier = Modifier.padding(start = 8.dp, bottom = 8.dp)
+        )
+        Card(
+            modifier = Modifier.fillMaxWidth(),
+            shape = RoundedCornerShape(16.dp),
+            colors = CardDefaults.cardColors(containerColor = Color.White),
+            elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
+        ) {
+            Column {
+                content()
+            }
+        }
+    }
+}
+
+@Composable
+private fun SettingsToggleItem(
+    icon: ImageVector,
+    label: String,
+    checked: Boolean,
+    onCheckedChange: (Boolean) -> Unit
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(16.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.SpaceBetween
+    ) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Icon(
+                imageVector = icon,
+                contentDescription = null,
+                modifier = Modifier.size(24.dp),
+                tint = Color.DarkGray
+            )
+            Spacer(modifier = Modifier.width(16.dp))
+            Text(text = label, style = MaterialTheme.typography.bodyLarge)
+        }
+        Switch(
+            checked = checked,
+            onCheckedChange = onCheckedChange,
+            colors = SwitchDefaults.colors(
+                checkedThumbColor = Color.White,
+                checkedTrackColor = Color(0xFF703E4B)
+            )
+        )
+    }
+}
+
+@Composable
+private fun SettingsActionItem(
+    icon: ImageVector,
+    label: String,
+    trailing: @Composable (() -> Unit)? = null,
+    onClick: () -> Unit = {}
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable { onClick() }
+            .padding(16.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.SpaceBetween
+    ) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Icon(
+                imageVector = icon,
+                contentDescription = null,
+                modifier = Modifier.size(24.dp),
+                tint = Color.DarkGray
+            )
+            Spacer(modifier = Modifier.width(16.dp))
+            Text(text = label, style = MaterialTheme.typography.bodyLarge)
+        }
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            if (trailing != null) {
+                trailing()
+                Spacer(modifier = Modifier.width(8.dp))
+            }
+            Icon(
+                imageVector = Icons.Default.ChevronRight,
+                contentDescription = null,
+                tint = Color.LightGray
+            )
+        }
+    }
+}
+
+@Composable
+private fun SignOutButton(maroonColor: Color) {
+    Button(
+        onClick = {
+            //TODO: ask for confirmation then clear local user data , reset screens and prompt to login
+        },
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(56.dp)
+            .border(1.dp, maroonColor, RoundedCornerShape(28.dp)),
+        colors = ButtonDefaults.buttonColors(
+            containerColor = Color.Transparent,
+            contentColor = maroonColor
+        ),
+        shape = RoundedCornerShape(28.dp),
+        elevation = ButtonDefaults.buttonElevation(defaultElevation = 0.dp)
+    ) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Icon(
+                imageVector = Icons.AutoMirrored.Filled.Logout,
+                contentDescription = null,
+                modifier = Modifier.size(20.dp)
+            )
+            Spacer(modifier = Modifier.width(8.dp))
+            Text(text = "Sign Out", fontWeight = FontWeight.Bold)
+        }
+    }
+}

@@ -21,6 +21,7 @@ import com.example.ratevault.ui.feed.FeedScreen
 import com.example.ratevault.ui.review.NewReviewScreen
 import com.example.ratevault.ui.review.ReviewDetailScreen
 import com.example.ratevault.ui.review.ReviewsScreen
+import com.example.ratevault.ui.settings.SettingsScreen
 
 @Preview
 @Composable
@@ -82,7 +83,7 @@ fun RateVaultScreen() {
                         }
 
                         NavDestination.Settings -> {
-
+                            SettingsScreen()
                         }
                     }
                 }

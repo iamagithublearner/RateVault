@@ -4,7 +4,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
@@ -18,6 +17,7 @@ import androidx.compose.ui.window.DialogProperties
 import com.example.ratevault.getCurrentDate
 import com.example.ratevault.model.Review
 import com.example.ratevault.model.ReviewEntry
+import com.example.ratevault.ui.feed.FeedScreen
 import com.example.ratevault.ui.review.NewReviewScreen
 import com.example.ratevault.ui.review.ReviewDetailScreen
 import com.example.ratevault.ui.review.ReviewsScreen
@@ -71,7 +71,10 @@ fun RateVaultScreen() {
                         }
 
                         NavDestination.Feed -> {
-
+                            FeedScreen(
+                                reviews = reviews,
+                                onReviewClick = { selectedReview = it }
+                            )
                         }
 
                         NavDestination.Profile -> {
@@ -138,3 +141,4 @@ fun RateVaultScreen() {
         }
     }
 }
+

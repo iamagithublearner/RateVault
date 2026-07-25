@@ -8,13 +8,13 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.FabPosition
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LargeFloatingActionButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
@@ -48,10 +48,10 @@ fun MainScaffold(
         floatingActionButton = {
             LargeFloatingActionButton(
                 onClick = onFabClick,
-                containerColor = Color(0xFFF19CAF), // Custom pink
-                contentColor = Color(0xFF4A1D2D), // Dark text/icon color
+                containerColor = MaterialTheme.colorScheme.primaryContainer,
+                contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
                 modifier = Modifier
-                    .offset(y = 56.dp) // Offset to overlap with BottomBar
+                    .offset(y = 56.dp)
                     .size(72.dp),
                 shape = androidx.compose.foundation.shape.CircleShape
             ) {
@@ -73,12 +73,11 @@ fun RateVaultBottomBar(
     onNavigate: (NavDestination) -> Unit
 ) {
     NavigationBar(
-        containerColor = Color.White,
+        containerColor = MaterialTheme.colorScheme.surfaceContainer,
         tonalElevation = 8.dp
     ) {
         val destinations = NavDestination.all
         
-        // Items 1 & 2
         destinations.take(2).forEach { destination ->
             NavigationBarItem(
                 selected = currentDestination == destination,
@@ -88,7 +87,6 @@ fun RateVaultBottomBar(
             )
         }
 
-        // Center Placeholder for FAB
         NavigationBarItem(
             selected = false,
             onClick = { },
@@ -97,7 +95,6 @@ fun RateVaultBottomBar(
             label = { Text("") }
         )
 
-        // Items 3 & 4
         destinations.takeLast(2).forEach { destination ->
             NavigationBarItem(
                 selected = currentDestination == destination,

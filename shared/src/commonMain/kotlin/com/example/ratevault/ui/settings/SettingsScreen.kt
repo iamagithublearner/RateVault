@@ -20,28 +20,32 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.ratevault.data.PlatformBackupManager
+import com.example.ratevault.data.ReviewRepository
+import com.example.ratevault.model.Review
 import com.example.ratevault.ui.components.RateVaultTopAppBar
+import kotlinx.coroutines.launch
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
 
-
-@Preview
 @Composable
-fun SettingsScreen() {
+fun SettingsScreen(repository: ReviewRepository, backupManager: PlatformBackupManager) {
     val maroonColor = Color(0xFF703E4B)
     val bgColor = Color(0xFFFFF8F8)
+    val coroutineScope = rememberCoroutineScope()
+    val snackbarHostState = remember { SnackbarHostState() }
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(bgColor)
-    ) {
-        RateVaultTopAppBar(title = "Settings")
-
+    Scaffold(
+        snackbarHost = { SnackbarHost(snackbarHostState) },
+        containerColor = bgColor,
+        topBar = { RateVaultTopAppBar(title = "Settings") }
+    ) { innerPadding ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
+                .padding(innerPadding)
                 .verticalScroll(rememberScrollState())
                 .padding(16.dp),
             horizontalAlignment = Alignment.CenterHorizontally
@@ -75,6 +79,43 @@ fun SettingsScreen() {
 
             Spacer(modifier = Modifier.height(16.dp))
 
+            SettingsSection(title = "DATA MANAGEMENT") {
+                SettingsActionItem(
+                    icon = Icons.Default.Backup,
+                    label = "Backup Data",
+                    onClick = {
+                        coroutineScope.launch {
+                            val reviews = repository.getAllReviewsList()
+                            val json = Json.encodeToString(reviews)
+                            val success = backupManager.exportData(json, "ratevault_backup.json")
+                            snackbarHostState.showSnackbar(
+                                if (success) "Backup saved successfully" else "Failed to save backup"
+                            )
+                        }
+                    }
+                )
+                SettingsActionItem(
+                    icon = Icons.Default.Restore,
+                    label = "Restore Data",
+                    onClick = {
+                        coroutineScope.launch {
+                            val json = backupManager.importData()
+                            if (json != null) {
+                                try {
+                                    val reviews = Json.decodeFromString<List<Review>>(json)
+                                    repository.insertAll(reviews)
+                                    snackbarHostState.showSnackbar("Data restored successfully")
+                                } catch (e: Exception) {
+                                    snackbarHostState.showSnackbar("Failed to parse backup file")
+                                }
+                            }
+                        }
+                    }
+                )
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
             SettingsSection(title = "CONTENT MANAGEMENT") {
                 SettingsActionItem(
                     icon = Icons.Default.Category,
@@ -99,7 +140,7 @@ fun SettingsScreen() {
                     icon = Icons.Default.Info,
                     label = "About",
                     onClick = {
-                        //TODO: display version information , git commit hash , other debug info
+                        //TODO: display version information
                     }
                 )
             }
@@ -120,7 +161,6 @@ fun SettingsScreen() {
     }
 }
 
-
 @Composable
 private fun ProfileCard() {
     Card(
@@ -133,7 +173,6 @@ private fun ProfileCard() {
             modifier = Modifier.padding(16.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            // Avatar Placeholder
             Box(
                 modifier = Modifier
                     .size(64.dp)
@@ -260,9 +299,7 @@ private fun SettingsActionItem(
 @Composable
 private fun SignOutButton(maroonColor: Color) {
     Button(
-        onClick = {
-            //TODO: ask for confirmation then clear local user data , reset screens and prompt to login
-        },
+        onClick = { },
         modifier = Modifier
             .fillMaxWidth()
             .height(56.dp)

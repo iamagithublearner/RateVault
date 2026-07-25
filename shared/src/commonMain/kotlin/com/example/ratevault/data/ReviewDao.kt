@@ -16,6 +16,12 @@ interface ReviewDao {
     @Delete
     suspend fun delete(review: Review)
 
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertAll(reviews: List<Review>)
+
+    @Query("SELECT * FROM Review ORDER BY date DESC")
+    suspend fun getAllReviewsList(): List<Review>
+
     @Query("SELECT * FROM Review ORDER BY date DESC")
     fun getAllReviews(): Flow<List<Review>>
 

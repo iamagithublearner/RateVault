@@ -5,9 +5,15 @@ import kotlinx.coroutines.flow.Flow
 
 class ReviewRepository(private val reviewDao: ReviewDao) {
     fun getAllReviews(): Flow<List<Review>> = reviewDao.getAllReviews()
+    
+    suspend fun getAllReviewsList(): List<Review> = reviewDao.getAllReviewsList()
 
     suspend fun saveReview(review: Review) {
         reviewDao.insert(review)
+    }
+
+    suspend fun insertAll(reviews: List<Review>) {
+        reviewDao.insertAll(reviews)
     }
 
     suspend fun deleteReview(review: Review) {

@@ -10,6 +10,7 @@ import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import com.example.ratevault.getCurrentDate
 import com.example.ratevault.data.ReviewRepository
+import com.example.ratevault.data.PlatformBackupManager
 import com.example.ratevault.model.Review
 import com.example.ratevault.model.ReviewEntry
 import com.example.ratevault.ui.feed.FeedScreen
@@ -20,7 +21,7 @@ import com.example.ratevault.ui.settings.SettingsScreen
 import kotlinx.coroutines.launch
 
 @Composable
-fun RateVaultScreen(repository: ReviewRepository) {
+fun RateVaultScreen(repository: ReviewRepository, backupManager: PlatformBackupManager) {
     var currentDestination by remember { mutableStateOf<NavDestination>(NavDestination.Feed) }
     var showNewReview by remember { mutableStateOf(false) }
     var prefillReview by remember { mutableStateOf<Review?>(null) }
@@ -80,7 +81,7 @@ fun RateVaultScreen(repository: ReviewRepository) {
                         }
 
                         NavDestination.Settings -> {
-                            SettingsScreen()
+                            SettingsScreen(repository, backupManager)
                         }
                     }
                 }

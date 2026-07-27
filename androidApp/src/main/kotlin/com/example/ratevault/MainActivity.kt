@@ -17,37 +17,40 @@ import java.io.InputStream
 
 class MainActivity : ComponentActivity() {
     
-    private var exportDeferred: CompletableDeferred<Uri?>? = null
-    private var importDeferred: CompletableDeferred<Uri?>? = null
+    private var exportDbDeferred: CompletableDeferred<Uri?>? = null
+    private var importDbDeferred: CompletableDeferred<Uri?>? = null
 
-    private val createDocumentLauncher = registerForActivityResult(
+    private val createDbDocumentLauncher = registerForActivityResult(
         ActivityResultContracts.StartActivityForResult()
     ) { result ->
-        exportDeferred?.complete(result.data?.data)
+        exportDbDeferred?.complete(result.data?.data)
     }
 
-    private val openDocumentLauncher = registerForActivityResult(
+    private val openDbDocumentLauncher = registerForActivityResult(
         ActivityResultContracts.StartActivityForResult()
     ) { result ->
-        importDeferred?.complete(result.data?.data)
+        importDbDeferred?.complete(result.data?.data)
     }
 
     private val backupManager = object : PlatformBackupManager {
-        override suspend fun exportData(json: String, fileName: String): Boolean {
+        override suspend fun exportDatabaseFile(fileName: String): Boolean {
             val intent = Intent(Intent.ACTION_CREATE_DOCUMENT).apply {
                 addCategory(Intent.CATEGORY_OPENABLE)
-                type = "application/json"
+                type = "application/x-sqlite3"
                 putExtra(Intent.EXTRA_TITLE, fileName)
             }
-            
-            exportDeferred = CompletableDeferred()
-            createDocumentLauncher.launch(intent)
-            
-            val uri = exportDeferred?.await() ?: return false
-            
+
+            exportDbDeferred = CompletableDeferred()
+            createDbDocumentLauncher.launch(intent)
+
+            val uri = exportDbDeferred?.await() ?: return false
+
             return try {
+                val dbFile = getDatabasePath("ratevault.db")
                 contentResolver.openOutputStream(uri)?.use { outputStream ->
-                    outputStream.write(json.toByteArray())
+                    dbFile.inputStream().use { inputStream ->
+                        inputStream.copyTo(outputStream)
+                    }
                 }
                 true
             } catch (e: Exception) {
@@ -55,23 +58,37 @@ class MainActivity : ComponentActivity() {
             }
         }
 
-        override suspend fun importData(): String? {
+        override suspend fun importDatabaseFile(): Boolean {
             val intent = Intent(Intent.ACTION_OPEN_DOCUMENT).apply {
                 addCategory(Intent.CATEGORY_OPENABLE)
-                type = "application/json"
+                type = "*/*"
             }
-            
-            importDeferred = CompletableDeferred()
-            openDocumentLauncher.launch(intent)
-            
-            val uri = importDeferred?.await() ?: return null
-            
+
+            importDbDeferred = CompletableDeferred()
+            openDbDocumentLauncher.launch(intent)
+
+            val uri = importDbDeferred?.await() ?: return false
+
             return try {
+                val dbFile = getDatabasePath("ratevault.db")
+                // Delete auxiliary files to avoid conflicts with the new database file
+                getDatabasePath("ratevault.db-wal").delete()
+                getDatabasePath("ratevault.db-shm").delete()
+
                 contentResolver.openInputStream(uri)?.use { inputStream ->
-                    inputStream.readBytes().decodeToString()
+                    dbFile.outputStream().use { outputStream ->
+                        inputStream.copyTo(outputStream)
+                    }
                 }
+                
+                // Restart activity
+                val restartIntent = packageManager.getLaunchIntentForPackage(packageName)
+                restartIntent?.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
+                finish()
+                startActivity(restartIntent)
+                true
             } catch (e: Exception) {
-                null
+                false
             }
         }
     }

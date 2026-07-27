@@ -26,7 +26,7 @@ fun getRoomDatabase(
 
 fun createReviewRepository(builder: RoomDatabase.Builder<RateVaultDatabase>): ReviewRepository {
     val db = getRoomDatabase(builder)
-    return ReviewRepository(db.reviewDao())
+    return ReviewRepository(db)
 }
 
 // The Room compiler generates the `actual` implementations.

@@ -24,11 +24,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.ratevault.data.PlatformBackupManager
 import com.example.ratevault.data.ReviewRepository
-import com.example.ratevault.model.Review
 import com.example.ratevault.ui.components.RateVaultTopAppBar
 import kotlinx.coroutines.launch
-import kotlinx.serialization.encodeToString
-import kotlinx.serialization.json.Json
 
 @Composable
 fun SettingsScreen(repository: ReviewRepository, backupManager: PlatformBackupManager) {
@@ -81,33 +78,29 @@ fun SettingsScreen(repository: ReviewRepository, backupManager: PlatformBackupMa
 
             SettingsSection(title = "DATA MANAGEMENT") {
                 SettingsActionItem(
-                    icon = Icons.Default.Backup,
-                    label = "Backup Data",
+                    icon = Icons.Default.FileUpload,
+                    label = "Export Database File",
                     onClick = {
                         coroutineScope.launch {
-                            val reviews = repository.getAllReviewsList()
-                            val json = Json.encodeToString(reviews)
-                            val success = backupManager.exportData(json, "ratevault_backup.json")
+                            val success = backupManager.exportDatabaseFile("ratevault.db")
                             snackbarHostState.showSnackbar(
-                                if (success) "Backup saved successfully" else "Failed to save backup"
+                                if (success) "Database exported successfully" else "Failed to export database"
                             )
                         }
                     }
                 )
                 SettingsActionItem(
-                    icon = Icons.Default.Restore,
-                    label = "Restore Data",
+                    icon = Icons.Default.FileDownload,
+                    label = "Import Database File",
                     onClick = {
                         coroutineScope.launch {
-                            val json = backupManager.importData()
-                            if (json != null) {
-                                try {
-                                    val reviews = Json.decodeFromString<List<Review>>(json)
-                                    repository.insertAll(reviews)
-                                    snackbarHostState.showSnackbar("Data restored successfully")
-                                } catch (e: Exception) {
-                                    snackbarHostState.showSnackbar("Failed to parse backup file")
-                                }
+                            // We close the DB before importing to allow overwriting the file.
+                            repository.closeDatabase()
+                            val success = backupManager.importDatabaseFile()
+                            if (success) {
+                                snackbarHostState.showSnackbar("Database imported. Restarting...")
+                            } else {
+                                snackbarHostState.showSnackbar("Failed to import database")
                             }
                         }
                     }

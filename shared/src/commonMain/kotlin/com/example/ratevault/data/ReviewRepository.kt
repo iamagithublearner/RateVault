@@ -3,17 +3,13 @@ package com.example.ratevault.data
 import com.example.ratevault.model.Review
 import kotlinx.coroutines.flow.Flow
 
-class ReviewRepository(private val reviewDao: ReviewDao) {
+class ReviewRepository(private val database: RateVaultDatabase) {
+    private val reviewDao = database.reviewDao()
+
     fun getAllReviews(): Flow<List<Review>> = reviewDao.getAllReviews()
     
-    suspend fun getAllReviewsList(): List<Review> = reviewDao.getAllReviewsList()
-
     suspend fun saveReview(review: Review) {
         reviewDao.insert(review)
-    }
-
-    suspend fun insertAll(reviews: List<Review>) {
-        reviewDao.insertAll(reviews)
     }
 
     suspend fun deleteReview(review: Review) {
@@ -22,5 +18,9 @@ class ReviewRepository(private val reviewDao: ReviewDao) {
     
     suspend fun getReviewByNameAndCategory(name: String, category: String): Review? {
         return reviewDao.getReviewByNameAndCategory(name, category)
+    }
+
+    fun closeDatabase() {
+        database.close()
     }
 }

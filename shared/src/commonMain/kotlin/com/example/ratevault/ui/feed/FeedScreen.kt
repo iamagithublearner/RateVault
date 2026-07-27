@@ -17,10 +17,8 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Shuffle
 import androidx.compose.material.icons.filled.Star
@@ -41,23 +39,20 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.ratevault.model.Category
 import com.example.ratevault.model.Review
-import com.example.ratevault.model.ReviewCategory
 import com.example.ratevault.ui.components.RateVaultTopAppBar
-import com.example.ratevault.ui.review.ReviewPreviewProvider
+import com.example.ratevault.ui.utils.IconUtils
 
-@Preview
 @Composable
 fun FeedScreen(
-    @PreviewParameter(ReviewPreviewProvider::class)
     reviews: List<Review>,
+    categories: List<Category>,
     onReviewClick: (Review) -> Unit = {}
 ) {
-    var selectedCategory by remember { mutableStateOf<ReviewCategory?>(null) }
+    var selectedCategory by remember { mutableStateOf<Category?>(null) }
 
     Column(
         modifier = Modifier
@@ -72,13 +67,14 @@ fun FeedScreen(
         ) {
             item {
                 CategoriesSection(
+                    categories = categories,
                     selectedCategory = selectedCategory,
                     onCategorySelected = {
-                        selectedCategory = if (selectedCategory == it) null else it
+                        selectedCategory = if (selectedCategory?.id == it.id) null else it
                     },
                     onShuffleClick = {
                         val filtered = if (selectedCategory != null) {
-                            reviews.filter { it.category == selectedCategory }
+                            reviews.filter { it.categoryId == selectedCategory?.id }
                         } else {
                             reviews
                         }
@@ -99,14 +95,16 @@ fun FeedScreen(
             }
 
             val filteredReviews = if (selectedCategory != null) {
-                reviews.filter { it.category == selectedCategory }
+                reviews.filter { it.categoryId == selectedCategory?.id }
             } else {
                 reviews
             }
 
             items(filteredReviews) { review ->
+                val category = categories.find { it.id == review.categoryId }
                 ReviewCard(
                     review = review,
+                    category = category,
                     onClick = { onReviewClick(review) },
                     modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
                 )
@@ -118,8 +116,9 @@ fun FeedScreen(
 
 @Composable
 private fun CategoriesSection(
-    selectedCategory: ReviewCategory?,
-    onCategorySelected: (ReviewCategory) -> Unit,
+    categories: List<Category>,
+    selectedCategory: Category?,
+    onCategorySelected: (Category) -> Unit,
     onShuffleClick: () -> Unit
 ) {
     Column {
@@ -172,10 +171,10 @@ private fun CategoriesSection(
             contentPadding = PaddingValues(horizontal = 16.dp, vertical = 12.dp),
             horizontalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            items(ReviewCategory.entries) { category ->
+            items(categories) { category ->
                 CategoryChip(
                     category = category,
-                    isSelected = selectedCategory == category,
+                    isSelected = selectedCategory?.id == category.id,
                     onClick = { onCategorySelected(category) }
                 )
             }
@@ -185,7 +184,7 @@ private fun CategoriesSection(
 
 @Composable
 private fun CategoryChip(
-    category: ReviewCategory,
+    category: Category,
     isSelected: Boolean,
     onClick: () -> Unit
 ) {
@@ -203,7 +202,7 @@ private fun CategoryChip(
             verticalAlignment = Alignment.CenterVertically
         ) {
             Icon(
-                imageVector = category.icon,
+                imageVector = IconUtils.getIcon(category.iconName),
                 contentDescription = null,
                 modifier = Modifier.size(18.dp),
                 tint = if (isSelected) Color.White else maroonColor
@@ -221,15 +220,17 @@ private fun CategoryChip(
 @Composable
 private fun ReviewCard(
     review: Review,
+    category: Category?,
     onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-       StandardReviewCard(review, onClick, modifier)
+       StandardReviewCard(review, category, onClick, modifier)
 }
 
 @Composable
 private fun StandardReviewCard(
     review: Review,
+    category: Category?,
     onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -252,11 +253,11 @@ private fun StandardReviewCard(
                     modifier = Modifier
                         .size(40.dp)
                         .clip(RoundedCornerShape(8.dp))
-                        .background(Color(review.category.color)),
+                        .background(if (category != null) Color(category.color) else Color.LightGray),
                     contentAlignment = Alignment.Center
                 ) {
                     Icon(
-                        imageVector = review.category.icon,
+                        imageVector = if (category != null) IconUtils.getIcon(category.iconName) else Icons.Default.Shuffle,
                         contentDescription = null,
                         tint = maroonColor,
                         modifier = Modifier.size(20.dp)

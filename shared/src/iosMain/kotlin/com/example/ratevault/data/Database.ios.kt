@@ -2,7 +2,9 @@ package com.example.ratevault.data
 
 import androidx.room3.Room
 import androidx.room3.RoomDatabase
+import androidx.sqlite.SQLiteConnection
 import androidx.sqlite.driver.bundled.BundledSQLiteDriver
+import androidx.sqlite.execSQL as libraryExecSQL
 import platform.Foundation.NSDocumentDirectory
 import platform.Foundation.NSFileManager
 import platform.Foundation.NSUserDomainMask
@@ -18,6 +20,10 @@ fun getDatabaseBuilder(): RoomDatabase.Builder<RateVaultDatabase> {
 
 fun provideReviewRepository(): ReviewRepository {
     return createReviewRepository(getDatabaseBuilder())
+}
+
+actual suspend fun SQLiteConnection.execSQL(sql: String) {
+    this.libraryExecSQL(sql)
 }
 
 @OptIn(ExperimentalForeignApi::class)

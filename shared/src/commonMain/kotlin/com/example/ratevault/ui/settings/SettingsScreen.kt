@@ -28,7 +28,12 @@ import com.example.ratevault.ui.components.RateVaultTopAppBar
 import kotlinx.coroutines.launch
 
 @Composable
-fun SettingsScreen(repository: ReviewRepository, backupManager: PlatformBackupManager) {
+fun SettingsScreen(
+    repository: ReviewRepository, 
+    backupManager: PlatformBackupManager,
+    onManageCategories: () -> Unit,
+    onManageTags: () -> Unit
+) {
     val maroonColor = Color(0xFF703E4B)
     val bgColor = Color(0xFFFFF8F8)
     val coroutineScope = rememberCoroutineScope()
@@ -113,16 +118,12 @@ fun SettingsScreen(repository: ReviewRepository, backupManager: PlatformBackupMa
                 SettingsActionItem(
                     icon = Icons.Default.Category,
                     label = "Manage Categories",
-                    onClick = {
-                        //TODO: implement adding and removing categories
-                    }
+                    onClick = onManageCategories
                 )
                 SettingsActionItem(
                     icon = Icons.AutoMirrored.Filled.Label,
                     label = "Manage Tags",
-                    onClick = {
-                        //TODO: implement adding and removing tags
-                    }
+                    onClick = onManageTags
                 )
             }
 

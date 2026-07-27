@@ -19,14 +19,17 @@ import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.ratevault.model.Category
 import com.example.ratevault.model.Review
 import com.example.ratevault.model.ReviewEntry
 import com.example.ratevault.ui.components.RateVaultTopAppBar
+import com.example.ratevault.ui.utils.IconUtils
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ReviewDetailScreen(
     review: Review,
+    category: Category?,
     onBack: () -> Unit,
     onReviewAgain: () -> Unit
 ) {
@@ -103,14 +106,14 @@ fun ReviewDetailScreen(
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             Icon(
-                                imageVector = review.category.icon,
+                                imageVector = if (category != null) IconUtils.getIcon(category.iconName) else Icons.Default.Category,
                                 contentDescription = null,
                                 tint = maroonColor,
                                 modifier = Modifier.size(14.dp)
                             )
                             Spacer(Modifier.width(6.dp))
                             Text(
-                                text = review.category.label.uppercase(),
+                                text = (category?.label ?: "Unknown").uppercase(),
                                 fontSize = 10.sp,
                                 fontWeight = FontWeight.Bold,
                                 color = maroonColor

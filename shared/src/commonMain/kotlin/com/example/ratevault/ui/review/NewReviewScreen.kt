@@ -23,16 +23,18 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.ratevault.model.ReviewCategory
+import com.example.ratevault.model.Category
 import androidx.compose.ui.tooling.preview.Preview
 import com.example.ratevault.ui.components.RateVaultTopAppBar
+import com.example.ratevault.ui.utils.IconUtils
 
 @Composable
 fun NewReviewScreen(
     onDismiss: () -> Unit,
-    onSave: (String, ReviewCategory, Int, String, String, List<String>) -> Unit,
+    onSave: (String, Category, Int, String, String, List<String>) -> Unit,
+    categories: List<Category>,
     initialName: String = "",
-    initialCategory: ReviewCategory? = null,
+    initialCategory: Category? = null,
     initialLocation: String = "",
     initialTags: List<String> = emptyList()
 ) {
@@ -96,25 +98,29 @@ fun NewReviewScreen(
 
             // Category Selector
             Text("Category", color = Color.Gray, fontSize = 14.sp)
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = 8.dp),
-                horizontalArrangement = Arrangement.spacedBy(12.dp)
-            ) {
-                ReviewCategory.entries.forEach { category ->
-                    CategoryItem(
-                        category = category,
-                        isSelected = selectedCategory == category,
-                        enabled = initialCategory == null || initialCategory == category,
-                        onClick = { 
-                            if (initialCategory == null) {
-                                selectedCategory = category 
-                            }
-                        },
-                        modifier = Modifier.weight(1f),
-                        maroonColor = maroonColor
-                    )
+            if (categories.isEmpty()) {
+                Text("No categories found. Please add them in Settings.", color = maroonColor, modifier = Modifier.padding(vertical = 8.dp))
+            } else {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 8.dp),
+                    horizontalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    categories.forEach { category ->
+                        CategoryItem(
+                            category = category,
+                            isSelected = selectedCategory?.id == category.id,
+                            enabled = initialCategory == null || initialCategory.id == category.id,
+                            onClick = { 
+                                if (initialCategory == null) {
+                                    selectedCategory = category 
+                                }
+                            },
+                            modifier = Modifier.weight(1f),
+                            maroonColor = maroonColor
+                        )
+                    }
                 }
             }
 
@@ -275,7 +281,7 @@ fun NewReviewScreen(
 
 @Composable
 fun CategoryItem(
-    category: ReviewCategory,
+    category: Category,
     isSelected: Boolean,
     enabled: Boolean = true,
     onClick: () -> Unit,
@@ -315,7 +321,7 @@ fun CategoryItem(
                 contentAlignment = Alignment.Center
             ) {
                 Icon(
-                    imageVector = category.icon,
+                    imageVector = IconUtils.getIcon(category.iconName),
                     contentDescription = null,
                     tint = if (isSelected) Color.White else maroonColor.copy(alpha = if (enabled) 1.0f else 0.5f),
                     modifier = Modifier.size(24.dp)
@@ -348,5 +354,5 @@ private fun getRatingLabel(rating: Int): String = when (rating) {
 @Preview
 @Composable
 fun NewReviewScreenPreview() {
-    NewReviewScreen(onDismiss = {}, onSave = { _, _, _, _, _, _ -> })
+    NewReviewScreen(onDismiss = {}, onSave = { _, _, _, _, _, _ -> }, categories = emptyList())
 }

@@ -1,10 +1,14 @@
 package com.example.ratevault.data
 
+import com.example.ratevault.model.Category
 import com.example.ratevault.model.Review
+import com.example.ratevault.model.Tag
 import kotlinx.coroutines.flow.Flow
 
 class ReviewRepository(private val database: RateVaultDatabase) {
     private val reviewDao = database.reviewDao()
+    private val categoryDao = database.categoryDao()
+    private val tagDao = database.tagDao()
 
     fun getAllReviews(): Flow<List<Review>> = reviewDao.getAllReviews()
     
@@ -16,8 +20,28 @@ class ReviewRepository(private val database: RateVaultDatabase) {
         reviewDao.delete(review)
     }
     
-    suspend fun getReviewByNameAndCategory(name: String, category: String): Review? {
-        return reviewDao.getReviewByNameAndCategory(name, category)
+    suspend fun getReviewByNameAndCategoryId(name: String, categoryId: Long): Review? {
+        return reviewDao.getReviewByNameAndCategoryId(name, categoryId)
+    }
+
+    // Categories
+    fun getAllCategories(): Flow<List<Category>> = categoryDao.getAllCategories()
+    suspend fun saveCategory(category: Category) = categoryDao.insert(category)
+    suspend fun deleteCategory(category: Category) = categoryDao.delete(category)
+    suspend fun getCategoryById(id: Long): Category? = categoryDao.getCategoryById(id)
+
+    // Tags
+    fun getAllTags(): Flow<List<Tag>> = tagDao.getAllTags()
+    suspend fun saveTag(tag: Tag) = tagDao.insert(tag)
+    suspend fun deleteTag(tag: Tag) = tagDao.delete(tag)
+
+    suspend fun prepopulateIfNeeded() {
+        val currentCategories = categoryDao.getAllCategoriesList()
+        if (currentCategories.isEmpty()) {
+            categoryDao.insert(Category(label = "Food", iconName = "Restaurant", color = 0xFFFCE4EC))
+            categoryDao.insert(Category(label = "Place", iconName = "Place", color = 0xFFE8EAF6))
+            categoryDao.insert(Category(label = "Moment", iconName = "Celebration", color = 0xFFE8F5E9))
+        }
     }
 
     fun closeDatabase() {

@@ -20,62 +20,15 @@ import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.ratevault.model.Category
 import com.example.ratevault.model.Review
-import com.example.ratevault.model.ReviewCategory
 import com.example.ratevault.ui.components.RateVaultTopAppBar
-import kotlin.collections.emptyList
+import com.example.ratevault.ui.utils.IconUtils
 
-fun createReview(index: Int) = Review(
-    name = "Food $index",
-    category = ReviewCategory.Food,
-    rating = (index % 5) + 1,
-    notes = "Notes for review $index",
-    imagePath = null,
-    location = "Location $index",
-    date = "${index + 1} May 1969",
-    tags = emptyList(),
-    previousReviews = emptyList()
-)
-
-class ReviewPreviewProvider : PreviewParameterProvider<List<Review>> {
-    override val values: Sequence<List<Review>> = sequenceOf(
-        listOf(
-            Review(
-                name = "Place 1",
-                category = ReviewCategory.Place,
-                rating = 4,
-                notes = "Notes",
-                imagePath = null,
-                location = "India",
-                date = "25 May 1969",
-                tags = emptyList(),
-                previousReviews = emptyList()
-            ),
-            Review(
-                name = "Food 2",
-                category = ReviewCategory.Food,
-                rating = 2,
-                notes = "Notes",
-                imagePath = null,
-                location = "India",
-                date = "25 May 1969",
-                tags = emptyList(),
-                previousReviews = emptyList()
-            )
-        ),
-        emptyList(),
-        (1..20).map(::createReview)
-
-
-    )
-
-}
-
-@Preview
 @Composable
 fun ReviewsScreen(
-    @PreviewParameter(ReviewPreviewProvider::class)
     reviews: List<Review>,
+    categories: List<Category>,
     onReviewClick: (Review) -> Unit = {}
 ) {
     Column(
@@ -95,7 +48,8 @@ fun ReviewsScreen(
                 modifier = Modifier.fillMaxSize()
             ) {
                 items(reviews) { review ->
-                    ReviewItem(review, onClick = { onReviewClick(review) })
+                    val category = categories.find { it.id == review.categoryId }
+                    ReviewItem(review, category, onClick = { onReviewClick(review) })
                 }
             }
         }
@@ -103,7 +57,7 @@ fun ReviewsScreen(
 }
 
 @Composable
-fun ReviewItem(review: Review, onClick: () -> Unit) {
+fun ReviewItem(review: Review, category: Category?, onClick: () -> Unit) {
     val maroonColor = Color(0xFF703E4B)
 
     val allRatings = listOf(review.rating) + review.previousReviews.map { it.rating }
@@ -129,11 +83,11 @@ fun ReviewItem(review: Review, onClick: () -> Unit) {
                 modifier = Modifier
                     .size(48.dp)
                     .clip(RoundedCornerShape(24.dp))
-                    .background(Color(review.category.color)),
+                    .background(if (category != null) Color(category.color) else Color.LightGray),
                 contentAlignment = Alignment.Center
             ) {
                 Icon(
-                    imageVector = review.category.icon,
+                    imageVector = if (category != null) IconUtils.getIcon(category.iconName) else Icons.Default.Star,
                     contentDescription = null,
                     tint = maroonColor,
                     modifier = Modifier.size(24.dp)
@@ -150,7 +104,7 @@ fun ReviewItem(review: Review, onClick: () -> Unit) {
                     color = Color.Black
                 )
                 Text(
-                    text = review.category.label,
+                    text = category?.label ?: "Unknown",
                     fontSize = 14.sp,
                     color = Color.Gray
                 )

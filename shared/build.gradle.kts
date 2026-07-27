@@ -67,6 +67,7 @@ kotlin {
         commonMain.dependencies {
             implementation(libs.kotlinx.serialization.json)
             implementation(libs.androidx.room.runtime)
+            implementation(libs.androidx.sqlite)
             implementation(libs.navigation3.ui)
             implementation(libs.compose.runtime)
             implementation(libs.compose.foundation)

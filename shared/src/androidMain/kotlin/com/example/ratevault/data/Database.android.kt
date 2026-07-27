@@ -3,7 +3,9 @@ package com.example.ratevault.data
 import android.content.Context
 import androidx.room3.Room
 import androidx.room3.RoomDatabase
+import androidx.sqlite.SQLiteConnection
 import androidx.sqlite.driver.bundled.BundledSQLiteDriver
+import androidx.sqlite.execSQL as libraryExecSQL
 
 fun getDatabaseBuilder(context: Context): RoomDatabase.Builder<RateVaultDatabase> {
     val appContext = context.applicationContext
@@ -17,4 +19,8 @@ fun getDatabaseBuilder(context: Context): RoomDatabase.Builder<RateVaultDatabase
 
 fun provideReviewRepository(context: Context): ReviewRepository {
     return createReviewRepository(getDatabaseBuilder(context))
+}
+
+actual suspend fun SQLiteConnection.execSQL(sql: String) {
+    this.libraryExecSQL(sql)
 }

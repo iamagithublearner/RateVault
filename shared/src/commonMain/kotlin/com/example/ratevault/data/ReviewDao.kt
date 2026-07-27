@@ -19,6 +19,6 @@ interface ReviewDao {
     @Query("SELECT * FROM Review ORDER BY date DESC")
     fun getAllReviews(): Flow<List<Review>>
 
-    @Query("SELECT * FROM Review WHERE name = :name AND category = :category")
-    suspend fun getReviewByNameAndCategory(name: String, category: String): Review?
+    @Query("SELECT * FROM Review WHERE name = :name AND categoryId = :categoryId")
+    suspend fun getReviewByNameAndCategoryId(name: String, categoryId: Long): Review?
 }

@@ -89,7 +89,12 @@ fun RateVaultScreen(repository: ReviewRepository, backupManager: PlatformBackupM
                             ReviewsScreen(
                                 reviews = reviews,
                                 categories = categories,
-                                onReviewClick = { selectedReview = it }
+                                onReviewClick = { selectedReview = it },
+                                onDeleteReview = { review ->
+                                    coroutineScope.launch {
+                                        repository.deleteReview(review)
+                                    }
+                                }
                             )
                         }
 

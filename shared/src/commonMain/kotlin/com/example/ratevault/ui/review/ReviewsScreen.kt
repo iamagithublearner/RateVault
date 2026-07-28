@@ -2,22 +2,28 @@ package com.example.ratevault.ui.review
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.AnchoredDraggableDefaults
+import androidx.compose.foundation.gestures.AnchoredDraggableState
+import androidx.compose.foundation.gestures.DraggableAnchors
+import androidx.compose.foundation.gestures.Orientation
+import androidx.compose.foundation.gestures.anchoredDraggable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.tooling.preview.PreviewParameter
-import androidx.compose.ui.tooling.preview.PreviewParameterProvider
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.ratevault.model.Category
@@ -25,11 +31,16 @@ import com.example.ratevault.model.Review
 import com.example.ratevault.ui.components.RateVaultTopAppBar
 import com.example.ratevault.ui.utils.IconUtils
 
+enum class DragAnchors {
+    Closed, Open
+}
+
 @Composable
 fun ReviewsScreen(
     reviews: List<Review>,
     categories: List<Category>,
-    onReviewClick: (Review) -> Unit = {}
+    onReviewClick: (Review) -> Unit = {},
+    onDeleteReview: (Review) -> Unit = {}
 ) {
     Column(
         modifier = Modifier
@@ -45,11 +56,75 @@ fun ReviewsScreen(
         } else {
             LazyColumn(
                 verticalArrangement = Arrangement.spacedBy(12.dp),
+                contentPadding = PaddingValues(bottom = 80.dp),
                 modifier = Modifier.fillMaxSize()
             ) {
-                items(reviews) { review ->
+                items(reviews, key = { it.id }) { review ->
                     val category = categories.find { it.id == review.categoryId }
-                    ReviewItem(review, category, onClick = { onReviewClick(review) })
+                    val density = LocalDensity.current
+                    val openAnchor = with(density) { -80.dp.toPx() }
+                    
+                    val anchors = remember {
+                        DraggableAnchors {
+                            DragAnchors.Closed at 0f
+                            DragAnchors.Open at openAnchor
+                        }
+                    }
+                    
+                    val state = remember {
+                        AnchoredDraggableState(
+                            initialValue = DragAnchors.Closed,
+                            anchors = anchors
+                        )
+                    }
+                    
+                    val flingBehavior = AnchoredDraggableDefaults.flingBehavior(
+                        state = state,
+                        positionalThreshold = { distance: Float -> distance * 0.5f },
+                        animationSpec = androidx.compose.animation.core.tween<Float>()
+                    )
+                    
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(IntrinsicSize.Min)
+                            .padding(horizontal = 16.dp)
+                    ) {
+                        // Background (Delete Button)
+                        Box(
+                            modifier = Modifier
+                                .fillMaxHeight()
+                                .align(Alignment.CenterEnd)
+                                .width(80.dp)
+                                .clip(RoundedCornerShape(topEnd = 12.dp, bottomEnd = 12.dp))
+                                .background(Color(0xFF703E4B))
+                                .clickable { onDeleteReview(review) },
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Icon(
+                                Icons.Default.Delete,
+                                contentDescription = "Delete",
+                                tint = Color.White,
+                                modifier = Modifier.size(28.dp)
+                            )
+                        }
+
+                        // Content (Review Item)
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .offset {
+                                    IntOffset(state.requireOffset().toInt(), 0)
+                                }
+                                .anchoredDraggable(
+                                    state = state,
+                                    orientation = Orientation.Horizontal,
+                                    flingBehavior = flingBehavior
+                                )
+                        ) {
+                            ReviewItem(review, category, onClick = { onReviewClick(review) })
+                        }
+                    }
                 }
             }
         }

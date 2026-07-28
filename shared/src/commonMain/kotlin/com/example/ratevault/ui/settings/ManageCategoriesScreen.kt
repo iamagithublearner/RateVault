@@ -37,6 +37,7 @@ fun ManageCategoriesScreen(
 ) {
     val categories by repository.getAllCategories().collectAsState(initial = emptyList())
     val coroutineScope = rememberCoroutineScope()
+    val snackbarHostState = remember { SnackbarHostState() }
     var showAddDialog by remember { mutableStateOf(false) }
     val maroonColor = Color(0xFF703E4B)
 
@@ -51,6 +52,7 @@ fun ManageCategoriesScreen(
                 }
             )
         },
+        snackbarHost = { SnackbarHost(snackbarHostState) },
         floatingActionButton = {
             FloatingActionButton(
                 onClick = { showAddDialog = true },
@@ -73,7 +75,13 @@ fun ManageCategoriesScreen(
                     category = category,
                     onDelete = {
                         coroutineScope.launch {
-                            repository.deleteCategory(category)
+                            val deleted = repository.deleteCategory(category)
+                            if (!deleted) {
+                                snackbarHostState.showSnackbar(
+                                    message = "Cannot delete category '${category.label}' because it's being used by reviews.",
+                                    duration = SnackbarDuration.Short
+                                )
+                            }
                         }
                     }
                 )

@@ -14,6 +14,12 @@ class ReviewRepository(private val database: RateVaultDatabase) {
     
     suspend fun saveReview(review: Review) {
         reviewDao.insert(review)
+        // Sync tags to the master Tag table
+        review.tags.forEach { tagName ->
+            if (tagDao.getTagByName(tagName) == null) {
+                tagDao.insert(Tag(name = tagName))
+            }
+        }
     }
 
     suspend fun deleteReview(review: Review) {
@@ -27,13 +33,32 @@ class ReviewRepository(private val database: RateVaultDatabase) {
     // Categories
     fun getAllCategories(): Flow<List<Category>> = categoryDao.getAllCategories()
     suspend fun saveCategory(category: Category) = categoryDao.insert(category)
-    suspend fun deleteCategory(category: Category) = categoryDao.delete(category)
+    
+    suspend fun deleteCategory(category: Category): Boolean {
+        val count = reviewDao.getReviewCountWithCategory(category.id)
+        return if (count == 0) {
+            categoryDao.delete(category)
+            true
+        } else {
+            false
+        }
+    }
+
     suspend fun getCategoryById(id: Long): Category? = categoryDao.getCategoryById(id)
 
     // Tags
     fun getAllTags(): Flow<List<Tag>> = tagDao.getAllTags()
     suspend fun saveTag(tag: Tag) = tagDao.insert(tag)
-    suspend fun deleteTag(tag: Tag) = tagDao.delete(tag)
+    
+    suspend fun deleteTag(tag: Tag): Boolean {
+        val count = reviewDao.getReviewCountWithTag(tag.name)
+        return if (count == 0) {
+            tagDao.delete(tag)
+            true
+        } else {
+            false
+        }
+    }
 
     suspend fun prepopulateIfNeeded() {
         val currentCategories = categoryDao.getAllCategoriesList()

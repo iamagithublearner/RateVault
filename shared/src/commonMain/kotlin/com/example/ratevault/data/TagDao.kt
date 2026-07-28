@@ -18,4 +18,7 @@ interface TagDao {
 
     @Delete
     suspend fun delete(tag: Tag)
+
+    @Query("SELECT * FROM Tag WHERE LOWER(name) = LOWER(:name) LIMIT 1")
+    suspend fun getTagByName(name: String): Tag?
 }

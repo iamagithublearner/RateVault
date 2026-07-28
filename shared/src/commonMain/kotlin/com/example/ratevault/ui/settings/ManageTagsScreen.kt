@@ -25,6 +25,7 @@ fun ManageTagsScreen(
 ) {
     val tags by repository.getAllTags().collectAsState(initial = emptyList())
     val coroutineScope = rememberCoroutineScope()
+    val snackbarHostState = remember { SnackbarHostState() }
     val maroonColor = Color(0xFF703E4B)
 
     Scaffold(
@@ -37,7 +38,8 @@ fun ManageTagsScreen(
                     }
                 }
             )
-        }
+        },
+        snackbarHost = { SnackbarHost(snackbarHostState) }
     ) { innerPadding ->
         if (tags.isEmpty()) {
             Box(modifier = Modifier.fillMaxSize().padding(innerPadding), contentAlignment = Alignment.Center) {
@@ -56,7 +58,13 @@ fun ManageTagsScreen(
                         tag = tag,
                         onDelete = {
                             coroutineScope.launch {
-                                repository.deleteTag(tag)
+                                val deleted = repository.deleteTag(tag)
+                                if (!deleted) {
+                                    snackbarHostState.showSnackbar(
+                                        message = "Cannot delete tag '${tag.name}' because it's being used by reviews.",
+                                        duration = SnackbarDuration.Short
+                                    )
+                                }
                             }
                         }
                     )

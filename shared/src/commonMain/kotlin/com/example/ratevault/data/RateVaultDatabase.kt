@@ -40,10 +40,11 @@ val MIGRATION_1_2 = object : Migration(1, 2) {
 
         // 4. Migrate data from old Review table to new Review table
         // We join with Category to get the new categoryId based on the old category string
+        // We use LEFT JOIN and COALESCE to ensure no reviews are lost if category names don't match
         connection.execSQL("""
             INSERT INTO Review_new (id, name, categoryId, rating, notes, imagePath, location, date, tags, previousReviews)
-            SELECT r.id, r.name, c.id, r.rating, r.notes, r.imagePath, r.location, r.date, r.tags, r.previousReviews
-            FROM Review r JOIN Category c ON r.category = c.label
+            SELECT r.id, r.name, COALESCE(c.id, 1), r.rating, r.notes, r.imagePath, r.location, r.date, r.tags, r.previousReviews
+            FROM Review r LEFT JOIN Category c ON r.category = c.label
         """.trimIndent())
 
         // 5. Replace old table with new one

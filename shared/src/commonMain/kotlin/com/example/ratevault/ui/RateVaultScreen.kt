@@ -48,6 +48,8 @@ fun RateVaultScreen(repository: ReviewRepository, backupManager: PlatformBackupM
             onNavigate = {destination->
                 selectedReview = null
                 prefillReview = null
+                showManageCategories = false
+                showManageTags = false
                 currentDestination = destination
             },
             onFabClick = {

@@ -60,10 +60,9 @@ fun getRoomDatabase(
         .addMigrations(MIGRATION_1_2)
         .setQueryCoroutineContext(Dispatchers.Default)
         .addCallback(object : RoomDatabase.Callback() {
-            override suspend fun onCreate(connection: SQLiteConnection) {
-                super.onCreate(connection)
-                // We'll handle prepopulation via the repository on first access if needed
-                // Or we can use raw SQL here if we know the schema
+            override suspend fun onOpen(connection: SQLiteConnection) {
+                super.onOpen(connection)
+                connection.execSQL("PRAGMA journal_mode=DELETE")
             }
         })
         .build()

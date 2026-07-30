@@ -87,7 +87,9 @@ fun SettingsScreen(
                     label = "Export Database File",
                     onClick = {
                         coroutineScope.launch {
+                            println("SettingsScreen: Starting database export...")
                             val success = backupManager.exportDatabaseFile("ratevault.db")
+                            println("SettingsScreen: Database export finished. Success: $success")
                             snackbarHostState.showSnackbar(
                                 if (success) "Database exported successfully" else "Failed to export database"
                             )
@@ -99,9 +101,11 @@ fun SettingsScreen(
                     label = "Import Database File",
                     onClick = {
                         coroutineScope.launch {
+                            println("SettingsScreen: Starting database import...")
                             // We close the DB before importing to allow overwriting the file.
                             repository.closeDatabase()
                             val success = backupManager.importDatabaseFile()
+                            println("SettingsScreen: Database import finished. Success: $success")
                             if (success) {
                                 snackbarHostState.showSnackbar("Database imported. Restarting...")
                             } else {
